@@ -1,0 +1,6 @@
+---
+- name: Configure database tier
+  hosts: dbservers
+  become: true
+  roles:
+    - role: database

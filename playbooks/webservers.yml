@@ -1,0 +1,6 @@
+---
+- name: Configure web tier
+  hosts: webservers
+  become: true
+  roles:
+    - role: webserver

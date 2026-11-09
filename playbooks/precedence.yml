@@ -1,0 +1,13 @@
+---
+- name: Show variable precedence
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Show the effective app_env of each host
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} -> app_env={{ app_env }}"
+
+    - name: Read another host's variable through hostvars
+      ansible.builtin.debug:
+        msg: "db1 sees web2 as {{ hostvars['web2']['app_env'] }}; webservers = {{ groups['webservers'] }}"
+      run_once: true

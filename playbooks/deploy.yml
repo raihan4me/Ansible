@@ -1,0 +1,75 @@
+---
+- name: Rolling deployment of the web tier
+  hosts: webservers
+  become: true
+  serial: 1
+  max_fail_percentage: 0
+  vars:
+    health_path: /healthz
+    version_file: /var/www/app/VERSION
+
+  pre_tasks:
+    - name: Validate the requested version
+      ansible.builtin.assert:
+        that:
+          - target_version is defined
+          - target_version is match('^[0-9]+[.][0-9]+[.][0-9]+$')
+        fail_msg: "Pass a semantic version, e.g. -e target_version=1.1.0"
+        success_msg: "Deploying version {{ target_version | default('') }}"
+
+    - name: Read the currently deployed version
+      ansible.builtin.slurp:
+        src: "{{ version_file }}"
+      register: current_version
+      failed_when: false
+
+    - name: Remember the version to roll back to
+      ansible.builtin.set_fact:
+        previous_version: "{{ (current_version.content | b64decode | trim) if current_version.content is defined else '0.0.0' }}"
+
+  tasks:
+    - name: Deploy, verify and roll back on failure
+      block:
+        - name: Deploy the requested version
+          ansible.builtin.include_role:
+            name: webserver
+          vars:
+            app_version: "{{ target_version }}"
+
+        - name: Flush handlers before health checks
+          ansible.builtin.meta: flush_handlers
+
+        - name: Health check through the published port
+          ansible.builtin.uri:
+            url: "http://127.0.0.1:{{ http_published_port }}{{ health_path }}"
+            status_code: 200
+          delegate_to: localhost
+          become: false
+          register: health
+          retries: 5
+          delay: 2
+          until: health.status == 200
+
+        - name: Verify the new version is served
+          ansible.builtin.uri:
+            url: "http://127.0.0.1:{{ http_published_port }}/"
+            return_content: true
+          delegate_to: localhost
+          become: false
+          register: page
+          failed_when: "('Version: ' ~ target_version) not in page.content"
+
+      rescue:
+        - name: Announce rollback
+          ansible.builtin.debug:
+            msg: "Health check failed on {{ inventory_hostname }}; restoring {{ previous_version }}"
+
+        - name: Roll back to the previous version
+          ansible.builtin.include_role:
+            name: webserver
+          vars:
+            app_version: "{{ previous_version }}"
+
+        - name: Abort the rolling deployment
+          ansible.builtin.fail:
+            msg: "Deployment of {{ target_version }} failed on {{ inventory_hostname }}; rolled back to {{ previous_version }}"

@@ -1,0 +1,25 @@
+---
+baseline_packages:
+  - curl
+  - htop
+  - jq
+  - tree
+  - vim-tiny
+baseline_admin_group: devops
+baseline_users:
+  - name: alice
+    uid: 2001
+    comment: Alice Admin
+  - name: bob
+    uid: 2002
+    comment: Bob Builder
+motd_banner: "Authorised access only - managed by Ansible"
+sshd_settings:
+  - key: PermitRootLogin
+    value: "no"
+  - key: PasswordAuthentication
+    value: "no"
+  - key: X11Forwarding
+    value: "no"
+owner_team: platform
+app_env: dev

@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+==========================================================
+ {{ motd_banner }}
+ Host       : {{ ansible_facts['hostname'] }}
+ OS         : {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
+ IP address : {{ ansible_facts['default_ipv4']['address'] | default('n/a') }}
+ Groups     : {{ group_names | join(', ') }}
+==========================================================

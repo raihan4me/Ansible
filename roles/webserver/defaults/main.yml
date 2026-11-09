@@ -1,0 +1,6 @@
+---
+web_port: 80
+web_root: /var/www/app
+site_title: Acme Shop
+app_version: "1.0.0"
+app_env: unknown

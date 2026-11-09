@@ -1,0 +1,52 @@
+---
+- name: Publish custom facts and summarise hosts
+  hosts: all
+  become: true
+  tasks:
+    - name: Create custom facts directory
+      ansible.builtin.file:
+        path: /etc/ansible/facts.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Deploy lab custom fact
+      ansible.builtin.copy:
+        dest: /etc/ansible/facts.d/lab.fact
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          [owner]
+          team={{ owner_team }}
+          environment={{ app_env }}
+          [tier]
+          name={{ group_names | difference(['production']) | first }}
+      notify: Reload local facts
+
+    - name: Flush handlers so new facts are available now
+      ansible.builtin.meta: flush_handlers
+
+    - name: Measure uptime
+      ansible.builtin.command:
+        cmd: uptime -p
+      register: uptime_result
+      changed_when: false
+
+    - name: Build host summary
+      ansible.builtin.set_fact:
+        host_summary: >-
+          {{ ansible_facts['hostname'] }} | tier={{ ansible_local['lab']['tier']['name'] }}
+          | team={{ ansible_local['lab']['owner']['team'] }}
+          | env={{ ansible_local['lab']['owner']['environment'] }}
+          | {{ uptime_result.stdout }}
+
+    - name: Print host summary
+      ansible.builtin.debug:
+        var: host_summary
+
+  handlers:
+    - name: Reload local facts
+      ansible.builtin.setup:
+        filter: ansible_local

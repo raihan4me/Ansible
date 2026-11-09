@@ -1,0 +1,12 @@
+---
+- name: Generate inventory report on the control node
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Render report
+      ansible.builtin.template:
+        src: report.md.j2
+        dest: "{{ playbook_dir }}/../reports/inventory.md"
+        mode: "0644"
+      delegate_to: localhost
+      run_once: true

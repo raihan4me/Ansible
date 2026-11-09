@@ -1,0 +1,9 @@
+# Acme Shop inventory report
+
+Managed hosts: {{ groups['all'] | length }}
+
+| Host | Groups | OS | IPv4 | App env |
+|------|--------|----|------|---------|
+{% for host in groups['all'] | sort %}
+| {{ host }} | {{ hostvars[host]['group_names'] | join(',') }} | {{ hostvars[host]['ansible_facts']['distribution'] }} {{ hostvars[host]['ansible_facts']['distribution_version'] }} | {{ hostvars[host]['ansible_facts']['default_ipv4']['address'] }} | {{ hostvars[host]['app_env'] }} |
+{% endfor %}

@@ -1,0 +1,38 @@
+---
+- name: Publish a status page on the web tier
+  hosts: webservers
+  become: true
+  vars:
+    status_dir: /var/www/app/status
+  tasks:
+    - name: Install ncdu
+      ansible.builtin.apt:
+        name: ncdu
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Create status directory
+      ansible.builtin.file:
+        path: "{{ status_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Write status page
+      ansible.builtin.copy:
+        dest: "{{ status_dir }}/index.html"
+        content: "status=ok version={{ app_version }}\n"
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: Show uptime
+      ansible.builtin.command:
+        cmd: uptime
+      register: uptime_out
+      changed_when: false
+
+  handlers:
+    - name: Reload nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded

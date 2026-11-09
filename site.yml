@@ -1,0 +1,16 @@
+---
+- name: Baseline for all hosts
+  ansible.builtin.import_playbook: playbooks/baseline.yml
+  tags: [baseline]
+
+- name: Custom facts for all hosts
+  ansible.builtin.import_playbook: playbooks/facts.yml
+  tags: [facts]
+
+- name: Web tier
+  ansible.builtin.import_playbook: playbooks/webservers.yml
+  tags: [web]
+
+- name: Database tier
+  ansible.builtin.import_playbook: playbooks/database.yml
+  tags: [db]

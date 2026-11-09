@@ -1,0 +1,10 @@
+---
+offline: true
+exclude_paths:
+  - .ansible/
+  - docker/
+  - reports/
+  - inventory/group_vars/dbservers/vault.yml
+skip_list:
+  - var-naming[no-role-prefix]
+  - run-once[task]

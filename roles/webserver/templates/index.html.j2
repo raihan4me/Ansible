@@ -1,0 +1,11 @@
+<!-- {{ ansible_managed }} -->
+<html>
+<head><title>{{ site_title }}</title></head>
+<body>
+<h1>{{ site_title }}</h1>
+<p>Host: {{ ansible_facts['hostname'] }}</p>
+<p>Version: {{ app_version }}</p>
+<p>Environment: {{ app_env }}</p>
+<p>Database: {{ groups['dbservers'] | default([]) | join(', ') }}</p>
+</body>
+</html>

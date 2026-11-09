@@ -1,0 +1,12 @@
+---
+- name: Check nginx configuration
+  ansible.builtin.command:
+    cmd: nginx -t
+  changed_when: false
+  listen: nginx config changed
+
+- name: Reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
+  listen: nginx config changed

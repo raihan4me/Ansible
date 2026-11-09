@@ -1,0 +1,26 @@
+# Ansible
+.ansible/
+*.retry
+*.log
+
+# Secrets — NEVER commit
+*.vault-pass
+vault-password*
+id_ed25519
+id_rsa
+docker/authorized_keys
+
+# Generated artifacts
+reports/*.md
+!reports/.gitkeep
+
+# Python venv
+ansible-venv/
+__pycache__/
+*.pyc
+
+# Editor / OS noise
+.DS_Store
+*.swp
+.idea/
+.vscode/

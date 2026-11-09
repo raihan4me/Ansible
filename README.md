@@ -1,3 +1,5 @@
+Ansible Configuration Management: Building and Operating a Multi-Tier Platform
+
 Scenario. You are a junior platform engineer at Acme Shop. The team is replacing hand-configured servers with Ansible. You have three Ubuntu 22.04 managed nodes: two web servers and one database server. They run as systemd-enabled Docker containers on your lab server and are reached over SSH, the same way real hosts are. Your job is to bring them under configuration management, secure them, deploy the application stack, and run a safe rolling release.
 
 What you will build:
